@@ -142,12 +142,7 @@ body::after {
   font-weight: 600;
   letter-spacing: -0.01em;
 }
-.brand .dot {
-  width: 9px; height: 9px;
-  border-radius: 50%;
-  background: var(--accent);
-  box-shadow: 0 0 0 4px var(--accent-soft);
-}
+.brand-mark { flex-shrink: 0; }
 .brand .name { font-size: 16px; white-space: nowrap; }
 .brand .name span { color: var(--faint); font-family: var(--mono); font-size: 13px; white-space: nowrap; }
 

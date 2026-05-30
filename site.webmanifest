@@ -1,0 +1,18 @@
+{
+  "name": "Krishna Purwar — AI Engineer & Systems Builder",
+  "short_name": "Krishna Purwar",
+  "description": "AI engineer building production systems and workflow tools.",
+  "start_url": "/",
+  "scope": "/",
+  "lang": "en",
+  "icons": [
+    { "src": "/icons/app/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/icons/app/icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "/icons/app/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "theme_color": "#16130f",
+  "background_color": "#16130f",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "categories": ["portfolio", "business"]
+}
