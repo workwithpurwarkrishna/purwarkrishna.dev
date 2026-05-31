@@ -91,7 +91,20 @@
     history.replaceState(null, "", "#" + id);
   });
 
-  /* ---------- scroll handler: progress + scrollspy + header ---------- */
+  var postToc = document.querySelector(".post-toc");
+  var postFoot = document.querySelector(".post-foot");
+
+  function positionToc() {
+    if (!postToc) return;
+    var shell = document.querySelector(".post-shell");
+    if (!shell) return;
+    postToc.style.left = (shell.getBoundingClientRect().left + parseFloat(getComputedStyle(shell).paddingLeft || 0)) + "px";
+    postToc.style.width = "230px";
+  }
+  positionToc();
+  window.addEventListener("resize", positionToc);
+
+  /* ---------- scroll handler: progress + scrollspy + header + toc floating ---------- */
   var ticking = false;
   function onScroll() {
     if (ticking) return;
@@ -119,11 +132,19 @@
           it.links.forEach(function (lk) { lk.classList.toggle("active", it === active); });
         });
       }
+
+      if (postToc) {
+        postToc.classList.toggle("toc-hidden", postFoot && postFoot.getBoundingClientRect().top <= window.innerHeight);
+      }
       ticking = false;
     });
   }
   window.addEventListener("scroll", onScroll, { passive: true });
-  window.addEventListener("resize", onScroll, { passive: true });
+  window.addEventListener("resize", function () {
+    tocLeft = null;
+    tocWidth = null;
+    onScroll();
+  }, { passive: true });
   onScroll();
 
   /* ---------- theme toggle ---------- */

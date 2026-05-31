@@ -58,6 +58,7 @@
   align-items: start;
 }
 
+.post-main[data-layout="toc"] .post-wrap { grid-column: 2; }
 .post-wrap { width: 100%; max-width: var(--read-width); margin-inline: auto; }
 
 /* ============================================================
@@ -66,12 +67,18 @@
 .post-toc { display: none; }
 .post-main[data-layout="toc"] .post-toc {
   display: block;
-  position: sticky;
+  position: fixed;
   top: 110px;
-  align-self: start;
+  z-index: 1;
   max-height: calc(100vh - 150px);
   overflow-y: auto;
   padding-right: 6px;
+  transition: opacity 0.3s var(--ease), visibility 0.3s var(--ease);
+}
+.post-toc.toc-hidden {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
 }
 .post-toc .toc-label {
   font-family: var(--mono);

@@ -975,3 +975,7 @@ body, .site-header, .site-footer, .section { transition: background-color .35s c
 .theme-toggle .ic-sun { display: none; }
 html[data-theme="light"] .theme-toggle .ic-moon { display: none; }
 html[data-theme="light"] .theme-toggle .ic-sun { display: block; }
+
+html[data-theme="light"] .site-header.scrolled {
+  background: oklch(0.975 0.006 85 / 0.82);
+}
