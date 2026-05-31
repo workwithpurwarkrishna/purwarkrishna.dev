@@ -7,689 +7,316 @@ readTime: "12 min"
 topics: ["structured-output", "openai", "pydantic", "llm"]
 ---
 
-Meta Description- Discover how Instructor's Pydantic-based structured output beats OpenAI's JSON for complex schemas, ensuring validation and deep nesting support.
+Integrating LLMs into production code means you need outputs that follow a strict schema — not just "probably JSON." This is where Instructor and OpenAI's native structured output diverge quickly. Both promise structured responses. Only one delivers when the schema gets complex.
 
-Why the Instructor Beats OpenAI for Structured JSON Output
+## What Is Structured Output?
 
-Integrating LLMs in our code and workflow is surely exciting, but it can get tiresome quickly as we need our outputs to follow proper structure/schema, and need to validate them along the way. This is where Instructor shines, let's go through it one step at a time, see how it performs compared to OpenAI and much more.
+Structured output means constraining the LLM response to a specific schema — typically JSON — so it can be used directly in downstream services without parsing guesswork. A model that reliably returns `{"name": "Alice", "age": 28}` is far more useful than one that sometimes returns that, sometimes wraps it in prose, sometimes invents extra fields.
 
-First, let's understand what Structured Output means!
+## The Instructor Library
 
-Structured Output means getting output in a particular schema, widely used as JSON. Strictly adhering to JSON output enables us to use LLM in traditional or AI-enabled services.
+[Instructor](https://github.com/jxnl/instructor), started by Jason Liu, enforces structured output via Pydantic integration. You define a Pydantic model, pass it as `response_model`, and get back a validated Python object. It works with OpenAI, Anthropic, Mistral, Cohere, and others.
 
-Instructor's library enforces strict JSON schemas via Pydantic integration, enabling immediate validation and deep-nesting support out of the box. In contrast, OpenAI's native structured-output feature works well for small, simple schemas but quickly breaks on complex or nested data, forcing manual workarounds.
+```bash
+pip install instructor
+```
 
-**The key takeaway:** *The Instructor transforms schema complexity from a blocker into a one-line response_model call, streamlining development and reducing error handling.*
+Basic usage:
 
-## Why Structured Output Matters?
-
-- LLMs generate probabilistic texts which can sometimes be different from what we expect, and hence they need to follow a strict schema.
-
-- Structured Output provides us with that predictability, lets us validate the code and helps in integrating the code into pipelines due to its ease and reliability.
-
-## Overview of Instructor Library
-
-Started by [Jason Liu](https://github.com/jxnl), now with 200+ contributors and more than 2.5M downloads per month, Instructor ensures that we get structured output that strictly adheres to our schema.Core features: Pydantic integration, vendor-agnostic support, complexity handling
-
-### Install the core library via pip:
-
-pip install instructor
-
-
-
-### Basic Usage Snippet:
-
-import instructor
-
+```python
+import instructor
 from openai import OpenAI
-
 from pydantic import BaseModel
 
-# 1. Define the shape of the data you want
-
 class UserInfo(BaseModel):
-
-name: str
-
-age: int
-
-# 2. Create an Instructor client for your LLM provider
+    name: str
+    age: int
 
 client = instructor.from_openai(OpenAI())
 
-# 3. Call the chat completions API with your Pydantic model
-
 user = client.chat.completions.create(
-
-model=\"gpt-4.1-mini\",
-
-response_model=UserInfo,
-
-messages=[],
-
+    model="gpt-4.1-mini",
+    response_model=UserInfo,
+    messages=[{"role": "user", "content": "Extract: John is 34 years old."}],
 )
 
-# 4. Access validated, structured fields
+print(user.name)  # John
+print(user.age)   # 34
+```
 
-print(user.name) # Alice
+That's it. The response is already a `UserInfo` instance — no JSON parsing, no `.get()` chains, no `try/except` around a `json.loads()`.
 
-print(user.age) # 28
+## OpenAI's Native Structured Output
 
-## Overview of OpenAI's Built-in Structured Output
+OpenAI added built-in structured output via `response_format` / `text_format`. It works for simple schemas and requires no extra library. For flat, small models it's convenient.
 
-- Easy to use as it is built in, it works well with simple and small schema that only requires JSON output.
+```python
+from openai import OpenAI
+from pydantic import BaseModel
 
-- Limitations: Pydantic validation issues, schema complexity breakdown
-
-## Side-by-Side Comparison of Instructor Library and OpenAI Structured Output
-
-  **Feature**                  **Instructor Library**                   **OpenAI Structured Output**
-  ---------------------------- ----------------------------------------
-  Vendor lock-in               Works with any supported LLM             Tied to OpenAI's API
-  Validation support           Native Pydantic validators               Fails on complex or nested schemas
-  Schema complexity handling   Handles deep nesting seamlessly          Breaks on large/complex schemas
-  Ease of use                  Single-step response_model integration   Requires manual crafting, parsing, and error handling
-  Error messaging              Clear Pydantic-style errors              Cryptic JSON schema errors
-
-## Simple Example: Species Extraction
-
-In this example, we would focus on the validation of our schema and compare how both approaches perform.
-
-### Instructor version 
-
-**Code:**
-
-# Import required libraries
-
-from openai import OpenAI # OpenAI\'s official Python client
-
-import instructor # Library for structured outputs from LLMs
-
-from pydantic import BaseModel, field_validator # For data validation
-
-from dotenv import load_dotenv # To load environment variables from .env file
-
-# Load environment variables (like API keys) from .env file
-
-load_dotenv()
-
-# Define a data model for species information using Pydantic
-
-# This ensures the data follows a specific structure and validation rules
-
-class Species(BaseModel):
-
-name: str # Species name as a string
-
-habitat: str # Where the species lives
-
-average_lifespan: int # Average lifespan in years
-
-# Custom validator to ensure species name is in capital letters
-
-\@field_validator(\"name\")
-
-def name_must_be_capital(cls, v: str) -> str:
-
-if not v.isupper():
-
-raise ValueError(\"Species name must be in capital letters.\")
-
-return v
-
-# Initialize the OpenAI client with instructor wrapper
-
-# This allows us to get structured JSON responses from the model
-
-client = instructor.from_openai(OpenAI(), mode=instructor.Mode.JSON)
-
-# Sample text containing information about a species
-
-paragraph = \"\"\"
-
-The African elephant is one of the largest land animals. It typically lives in savannas and forests.
-
-These elephants can live up to 70 years in the wild.
-
-\"\"\"
-
-# Make an API call to GPT-4 to extract structured information
-
-# The response will be automatically converted to our Species model
-
-response = client.chat.completions.create(
-
-model=\"gpt-4.1-mini-2025-04-14\", # Specify which model to use
-
-response_model=Species, # Tell the model to format response as Species object
-
-messages=[
-
-\",
-
-}
-
-],
-
-)
-
-# Print the structured response
-
-print(response)
-
-**Output:**
-
-name=\'AFRICAN ELEPHANT\' habitat=\'savannas and forests\' average_lifespan=70
-
-**The output is exactly what we want.**
-
-### OpenAI version
-
-**Code:**
-
-# Import required libraries
-
-from openai import OpenAI # OpenAI\'s official Python client
-
-from pydantic import BaseModel, field_validator, ValidationError # For data validation and error handling
-
-from dotenv import load_dotenv # To load environment variables from .env file
-
-# Load environment variables (like API keys) from .env file
-
-load_dotenv()
-
-# Define a data model for species information using Pydantic
-
-# This ensures the data follows a specific structure and validation rules
-
-class Species(BaseModel):
-
-name: str # Species name as a string
-
-habitat: str # Where the species lives
-
-average_lifespan: int # Average lifespan in years
-
-# Custom validator to ensure species name is in capital letters
-
-# This will cause validation errors if the model returns lowercase names
-
-\@field_validator(\"name\")
-
-def name_must_be_capital(cls, v: str) -> str:
-
-if not v.isupper():
-
-raise ValueError(\"Species name must be in capital letters.\")
-
-return v
-
-# Initialize the basic OpenAI client
-
-# Note: This version doesn\'t use instructor, which means we\'ll need to handle
-
-# response parsing and validation manually
+class UserInfo(BaseModel):
+    name: str
+    age: int
 
 client = OpenAI()
 
-# Sample text containing information about a species
-
-# Note: The text contains lowercase \"african\" which will cause validation errors
-
-# This demonstrates why instructor\'s automatic formatting is helpful
-
-paragraph = \"\"\"
-
-The african elephant is one of the largest land animals. It typically lives in savannas and forests.
-
-These elephants can live up to 70 years in the wild.
-
-\"\"\"
-
-# Try to parse the response and handle potential errors
-
-try:
-
-# Make an API call to GPT-4 to extract structured information
-
-# Note: Without instructor, we need to manually parse and validate the response
-
 response = client.responses.parse(
-
-model=\"gpt-4.1-mini-2025-04-14\", # Specify which model to use
-
-input=[
-
-\",
-
-}
-
-],
-
-text_format=Species, # Attempt to format response as Species object
-
+    model="gpt-4.1-mini",
+    input=[{"role": "user", "content": "Extract: John is 34 years old."}],
+    text_format=UserInfo,
 )
-
-# Print the parsed response if successful
 
 print(response.output_parsed)
+```
 
-except ValidationError as ve:
+So far, both look equivalent. The difference shows up when you add validators or nest models.
 
-# Handle validation errors (e.g., when species name isn\'t in capital letters)
+## Simple Example: Species Extraction with a Validator
 
-print(\"Validation Error:\")
+Let's add a `field_validator` that requires the species name to be uppercase. This is a perfectly normal Pydantic constraint.
 
-for error in ve.errors():
+### Instructor version
 
-print(f\"Field:  - Error: \")
-
-except Exception as e:
-
-# Handle any other unexpected errors
-
-print(\"An error occurred while processing the response:\")
-
-print(str(e))
-
-# This version is more prone to errors because:
-
-# 1. It doesn\'t automatically format the response
-
-# 2. It requires manual error handling
-
-# 3. The model might return data in an unexpected format
-
-# 4. We need to handle validation ourselves
-
-**Output:**
-
-Validation Error:
-
-Field: name - Error: Value error, Species name must be in capital letters.
-
-It fails upon validation and throws an error. On top of that, to make sure that the code doesn't explode, I had to write extra try & except, which was not the case with the Instructor.
-
-**Key takeaway**: Instructor succeeds out of the box.
-
-## Complex Example: Financial Analysis
-
-**Model definition** (nested Pydantic classes)
-
-main.py:
-
-from typing import Dict, List, Optional, Union, Literal
-
-from datetime import datetime
-
-from pydantic import BaseModel, Field
-
-class FinancialAnalysisModel(BaseModel):
-
-\"\"\"
-
-Base model for financial data analysis with nested classes
-
-for comparing structured output approaches.
-
-This model demonstrates a complex nested structure that can be used to:
-
-1\. Validate financial data
-
-2\. Ensure type safety
-
-3\. Provide structured output for financial analysis
-
-4\. Compare different approaches to data extraction
-
-\"\"\"
-
-class TransactionData(BaseModel):
-
-\"\"\"
-
-Nested class for detailed transaction information.
-
-This class enforces strict typing and validation for financial transactions.
-
-\"\"\"
-
-# Enforce specific transaction types using Literal type
-
-transaction_type: Literal[\"deposit\", \"withdrawal\", \"transfer\", \"investment\"] = Field(
-
-\..., description=\"The type of financial transaction\"
-
-)
-
-amount: float = Field(\..., description=\"Transaction amount in specified currency\")
-
-currency_code: str = Field(\..., description=\"Three-letter currency code\")
-
-timestamp: datetime = Field(\..., description=\"ISO format timestamp of the transaction\")
-
-status: str = Field(\..., description=\"Current status of the transaction\")
-
-# Optional field that can be None
-
-notes: Optional[str] = Field(None, description=\"Additional transaction notes\")
-
-# Dictionary for flexible metadata storage
-
-metadata: Dict[str, Union[str, float, bool]] = Field(
-
-default_factory=dict, description=\"Additional contextual information\"
-
-)
-
-class AccountSummary(BaseModel):
-
-\"\"\"
-
-Nested class for account summary information.
-
-Provides a structured way to store account-level financial data.
-
-\"\"\"
-
-account_id: str = Field(\..., description=\"Unique identifier for the account\")
-
-account_type: str = Field(\..., description=\"Type of financial account\")
-
-balance: float = Field(\..., description=\"Current balance in base currency\")
-
-risk_level: Literal[\"low\", \"medium\", \"high\"] = Field(
-
-\..., description=\"Risk assessment of the account\"
-
-)
-
-# Dictionary to store various performance metrics
-
-performance_metrics: Dict[str, float] = Field(
-
-default_factory=dict, description=\"Key performance indicators for the account\"
-
-)
-
-last_updated: str = Field(\..., description=\"When the data was last refreshed\")
-
-# Top-level fields for the financial analysis
-
-client_id: str = Field(\..., description=\"Unique identifier for the client\")
-
-analysis_date: str = Field(\..., description=\"Date of financial analysis\")
-
-# Dictionary mapping account IDs to their summaries
-
-accounts: Dict[str, AccountSummary] = Field(
-
-default_factory=dict, description=\"Map of account IDs to account summaries\"
-
-)
-
-# List of transactions for the analysis period
-
-transactions: List[TransactionData] = Field(
-
-default_factory=list, description=\"List of relevant transactions in analysis period\"
-
-)
-
-# Flexible dictionary for analysis results and recommendations
-
-result: Dict[str, Union[float, str, bool]] = Field(
-
-default_factory=dict, description=\"Analysis results and recommendations\"
-
-)
-
-# Sample text demonstrating the kind of financial data we\'ll be parsing
-
-# This text contains various pieces of information that need to be extracted
-
-# and structured according to our model
-
-SAMPLE_TEXT = \"\"\"
-
-Client C123456\'s financial analysis from May 15, 2025 shows one investment account (A001) with a balance of usd 158,432.50.
-
-The account has medium risk, with YTD return of 8.3%, one-year return of 12.1%, and volatility of 6.7%.
-
-The account was last updated on May 14, 2025 at 11:00 PM UTC.
-
-A recent transaction shows an investment of usd 10,000 completed on May 1, 2025 at 2:30 PM UTC,
-
-noted as \"Monthly portfolio contribution\" in the \"scheduled\" category for an \"index_fund\".
-
-The analysis projects a 10.5% annual return, with a risk-adjusted score of 7.8.
-
-Rebalancing is recommended, and tax efficiency is moderate.
-
-\"\"\"
-
-**Instructor workflow**
-
-structured_output_instructor.py:
-
-# Import required libraries
-
-from openai import OpenAI # OpenAI\'s official Python client
-
-import instructor # Library for structured outputs from LLMs
-
-from main import FinancialAnalysisModel, SAMPLE_TEXT # Import our data model and sample text
-
-from dotenv import load_dotenv # To load environment variables from .env file
-
-# Load environment variables (like API keys) from .env file
+```python
+import instructor
+from openai import OpenAI
+from pydantic import BaseModel, field_validator
+from dotenv import load_dotenv
 
 load_dotenv()
 
-# Initialize the OpenAI client with instructor wrapper
+class Species(BaseModel):
+    name: str
+    habitat: str
+    average_lifespan: int
 
-# This enables automatic structured output parsing and validation
+    @field_validator("name")
+    def name_must_be_capital(cls, v: str) -> str:
+        if not v.isupper():
+            raise ValueError("Species name must be in capital letters.")
+        return v
 
 client = instructor.from_openai(OpenAI(), mode=instructor.Mode.JSON)
 
-def analyze_financial_data(text):
-
-\"\"\"
-
-Analyze financial data using OpenAI\'s chat completions API with instructor.
-
-This function demonstrates how instructor simplifies the process of:
-
-1\. Extracting structured data from unstructured text
-
-2\. Validating the extracted data against our model
-
-3\. Handling complex nested structures
-
-4\. Ensuring type safety
-
-Args:
-
-text: The financial text to analyze (unstructured text containing financial information)
-
-Returns:
-
-Extracted financial analysis data matching FinancialAnalysisModel structure
-
-Returns None if an error occurs during processing
-
-\"\"\"
-
-try:
-
-# Make API call to GPT-4 with instructor\'s structured output handling
-
-# The response will be automatically parsed and validated against FinancialAnalysisModel
+paragraph = """
+The African elephant is one of the largest land animals.
+It typically lives in savannas and forests and can live up to 70 years.
+"""
 
 response = client.chat.completions.create(
-
-response_model=FinancialAnalysisModel, # Specify our model for structured output
-
-messages=[
-
-],
-
-model=\"gpt-4.1-mini-2025-04-14\", # Specify which model to use
-
+    model="gpt-4.1-mini",
+    response_model=Species,
+    messages=[{"role": "user", "content": f"Extract species data from: {paragraph}"}],
 )
 
-return response
+print(response)
+```
 
-except Exception as e:
+**Output:**
 
-# Handle any errors that occur during processing
+```
+name='AFRICAN ELEPHANT' habitat='savannas and forests' average_lifespan=70
+```
 
-print(f\"Error occurred: \")
+Instructor noticed the validator, retried with corrected casing, and returned a valid object. Zero extra code from the caller.
 
-return None
+### OpenAI version (same validator)
 
-# When running this script directly, analyze the sample text
-
-if __name__ == \"__main__\":
-
-# Process the sample financial text and print the structured result
-
-result = analyze_financial_data(SAMPLE_TEXT)
-
-print(result)
-
-**Output:**
-
-python3 structured_outputs_instructor.py
-
-client_id=\'C123456\' analysis_date=\'2025-05-15\' accounts=, last_updated=\'2025-05-14T23:00:00Z\')} transactions=[TransactionData(transaction_type=\'investment\', amount=10000.0, currency_code=\'USD\', timestamp=datetime.datetime(2025, 5, 1, 14, 30, tzinfo=TzInfo(UTC)), status=\'completed\', notes=\'Monthly portfolio contribution\', metadata=)] result=
-
-The output is a mix of strings, lists and dictionaries, as defined in the FinancialAnalysisModel class, which is gracefully handled by the Instructor.
-
-**OpenAI workflow** (standard parse fails + workaround code)\
-structured_outputs_openai.py:
-
-# Import required libraries
-
-from openai import OpenAI # OpenAI\'s official Python client
-
-from main import FinancialAnalysisModel, SAMPLE_TEXT # Import our data model and sample text
-
-import os # For environment variable access
-
-from dotenv import load_dotenv # To load environment variables from .env file
-
-# Load environment variables (like API keys) from .env file
+```python
+from openai import OpenAI
+from pydantic import BaseModel, field_validator, ValidationError
+from dotenv import load_dotenv
 
 load_dotenv()
 
-# Initialize basic OpenAI client without instructor wrapper
+class Species(BaseModel):
+    name: str
+    habitat: str
+    average_lifespan: int
 
-# Note: This version lacks automatic structured output handling
+    @field_validator("name")
+    def name_must_be_capital(cls, v: str) -> str:
+        if not v.isupper():
+            raise ValueError("Species name must be in capital letters.")
+        return v
 
-client = OpenAI(api_key=os.getenv(\'OPENAI_API_KEY\'))
+client = OpenAI()
 
-def analyze_financial_data(text):
-
-\"\"\"
-
-Analyze financial data using OpenAI\'s basic chat completions API.
-
-This implementation demonstrates the limitations of using OpenAI\'s basic client:
-
-1\. No automatic handling of complex nested structures
-
-2\. Manual parsing required for nested objects
-
-3\. No built-in validation against our model
-
-4\. More prone to errors with complex data types
-
-Args:
-
-text: The financial text to analyze (unstructured text containing financial information)
-
-Returns:
-
-Extracted financial analysis data matching FinancialAnalysisModel structure
-
-Returns None if an error occurs during processing
-
-\"\"\"
+paragraph = """
+The african elephant is one of the largest land animals.
+It typically lives in savannas and forests and can live up to 70 years.
+"""
 
 try:
-
-# Call the chat completions API with JSON response format
-
-# Note: This approach struggles with nested structures in FinancialAnalysisModel
-
-response = client.responses.parse(
-
-model=\"gpt-4o-2024-08-06\", # Specify which model to use
-
-input=[
-
-,
-
-],
-
-text_format=FinancialAnalysisModel, # Attempt to format as our model
-
-)
-
-# Extract the parsed output
-
-# Note: This might fail for complex nested structures
-
-result = response.output_parsed
-
-return result
-
+    response = client.responses.parse(
+        model="gpt-4.1-mini",
+        input=[{"role": "user", "content": f"Extract species data from: {paragraph}"}],
+        text_format=Species,
+    )
+    print(response.output_parsed)
+except ValidationError as ve:
+    for error in ve.errors():
+        print(f"Field: {error['loc']} — Error: {error['msg']}")
 except Exception as e:
+    print(f"Error: {e}")
+```
 
-# Handle any errors that occur during processing
+**Output:**
 
-# Common errors include:
+```
+Field: ('name',) — Error: Value error, Species name must be in capital letters.
+```
 
-# - Nested structure parsing failures
+It fails validation and throws. You now have to write retry logic yourself — which is exactly what Instructor handles automatically.
 
-# - Type validation errors
+**Key takeaway:** Instructor retries until the validator passes. OpenAI's native API doesn't know about Pydantic validators; it only sees the JSON schema.
 
-# - Missing required fields
+## Complex Example: Nested Financial Model
 
-print(f\"Error occurred: \")
+Here's where the gap becomes a blocker. A real production schema might look like this:
 
-return None
+**`models.py`**
 
-# When running this script directly, analyze the sample text
+```python
+from typing import Dict, List, Optional, Union, Literal
+from datetime import datetime
+from pydantic import BaseModel, Field
 
-if __name__ == \"__main__\":
+class TransactionData(BaseModel):
+    transaction_type: Literal["deposit", "withdrawal", "transfer", "investment"]
+    amount: float
+    currency_code: str
+    timestamp: datetime
+    status: str
+    notes: Optional[str] = None
+    metadata: Dict[str, Union[str, float, bool]] = Field(default_factory=dict)
 
-# Process the sample financial text and print the structured result
+class AccountSummary(BaseModel):
+    account_id: str
+    account_type: str
+    balance: float
+    risk_level: Literal["low", "medium", "high"]
+    performance_metrics: Dict[str, float] = Field(default_factory=dict)
+    last_updated: str
 
-# Note: This is likely to fail due to the complexity of our model
+class FinancialAnalysisModel(BaseModel):
+    client_id: str
+    analysis_date: str
+    accounts: Dict[str, AccountSummary] = Field(default_factory=dict)
+    transactions: List[TransactionData] = Field(default_factory=list)
+    result: Dict[str, Union[float, str, bool]] = Field(default_factory=dict)
+```
 
-result = analyze_financial_data(SAMPLE_TEXT)
+Sample text to extract from:
 
+```python
+SAMPLE_TEXT = """
+Client C123456's financial analysis from May 15, 2025 shows one investment account (A001)
+with a balance of USD 158,432.50. The account has medium risk, with YTD return of 8.3%,
+one-year return of 12.1%, and volatility of 6.7%. Last updated May 14, 2025 at 11:00 PM UTC.
+
+A recent transaction: investment of USD 10,000 completed on May 1, 2025 at 2:30 PM UTC,
+noted as "Monthly portfolio contribution" in the "scheduled" category for an "index_fund".
+
+Analysis projects 10.5% annual return, risk-adjusted score 7.8. Rebalancing recommended.
+"""
+```
+
+### Instructor — one call, works
+
+```python
+import instructor
+from openai import OpenAI
+from models import FinancialAnalysisModel, SAMPLE_TEXT
+from dotenv import load_dotenv
+
+load_dotenv()
+
+client = instructor.from_openai(OpenAI(), mode=instructor.Mode.JSON)
+
+def analyze(text: str) -> FinancialAnalysisModel | None:
+    try:
+        return client.chat.completions.create(
+            model="gpt-4.1-mini",
+            response_model=FinancialAnalysisModel,
+            messages=[{"role": "user", "content": f"Extract financial data from:\n{text}"}],
+        )
+    except Exception as e:
+        print(f"Error: {e}")
+        return None
+
+result = analyze(SAMPLE_TEXT)
 print(result)
+```
 
-**Output:**
+**Output:**
 
-python3 structured_outputs_openai.py
+```
+client_id='C123456' analysis_date='2025-05-15'
+accounts={'A001': AccountSummary(account_id='A001', account_type='investment',
+  balance=158432.5, risk_level='medium',
+  performance_metrics={'ytd_return': 8.3, 'one_year_return': 12.1, 'volatility': 6.7},
+  last_updated='2025-05-14T23:00:00Z')}
+transactions=[TransactionData(transaction_type='investment', amount=10000.0,
+  currency_code='USD', timestamp=datetime(2025, 5, 1, 14, 30, tzinfo=UTC),
+  status='completed', notes='Monthly portfolio contribution',
+  metadata={'category': 'scheduled', 'fund_type': 'index_fund'})]
+result={'annual_return': 10.5, 'risk_adjusted_score': 7.8, 'rebalancing_recommended': True}
+```
 
-Error occurred: Error code: 400 - } None
+Fully parsed, validated, deeply nested — no extra code.
 
-
+### OpenAI native — fails at schema complexity
 
-As we can see, it did not work when the schema got complex; to get the same result with OpenAI, we would have to do a complex manoeuvre, write a schema for every part and then parse it, increasing the complexity and burden, which doesn't make any sense.
+```python
+from openai import OpenAI
+from models import FinancialAnalysisModel, SAMPLE_TEXT
+from dotenv import load_dotenv
 
-**Key takeaway**: The Instructor handles complexity with minimal code against this monstrosity we have to do by defining our schema again in JSON format.
+load_dotenv()
 
-## Conclusion
+client = OpenAI()
 
-Instructor's model-first design turns structured output into a predictable, maintainable process. By integrating Pydantic validators and embracing vendor-agnostic support, it ensures that any response aligns exactly with your data models, no extra parsing, no mysterious JSON errors.
+def analyze(text: str):
+    try:
+        response = client.responses.parse(
+            model="gpt-4o-2024-08-06",
+            input=[{"role": "user", "content": f"Extract financial data from:\n{text}"}],
+            text_format=FinancialAnalysisModel,
+        )
+        return response.output_parsed
+    except Exception as e:
+        print(f"Error: {e}")
+        return None
 
-Meanwhile, relying solely on OpenAI's built-in JSON formatting quickly becomes untenable as schema complexity grows, leaving developers to build elaborate manual workarounds.
+result = analyze(SAMPLE_TEXT)
+print(result)
+```
 
-Ultimately, Instructor empowers teams to adopt LLM-powered pipelines without sacrificing reliability or debugging clarity.
+**Output:**
+
+```
+Error: Error code: 400 — {'error': {'message': "Invalid schema for response_format
+'FinancialAnalysisModel': ...", 'type': 'invalid_request_error'}} None
+```
+
+OpenAI's structured output API doesn't support `Dict`, `Union`, or nested `datetime` in the way Pydantic uses them. To make this work natively, you'd have to flatten the schema, remove Union types, pre-convert datetime fields, and write manual parsing for the nested dicts. That negates most of the benefit of structured output.
+
+## Side-by-Side
+
+| Feature | Instructor | OpenAI native |
+|---------|-----------|---------------|
+| Vendor support | OpenAI, Anthropic, Mistral, Cohere, + more | OpenAI only |
+| Pydantic validators | Retried automatically | Not supported |
+| Nested / complex schemas | Works out of the box | Breaks on `Dict`, `Union`, `datetime` |
+| Retry on failure | Built-in | Manual |
+| Error messages | Clear Pydantic validation errors | Cryptic API 400s |
+| Setup overhead | `pip install instructor` | None |
+
+## When to Use Which
+
+**Use OpenAI native** when you have a flat, simple schema with no custom validators, you're already on OpenAI, and you want zero extra dependencies.
+
+**Use Instructor** when you have nested models, custom validators, multiple LLM providers, or when validation failures need to be retried automatically. In production AI pipelines, that's almost always.
+
+The `response_model` pattern removes an entire category of bugs — the ones where the LLM returned valid JSON that wasn't valid for your schema — and replaces them with deterministic Pydantic errors that are easy to catch and handle.
