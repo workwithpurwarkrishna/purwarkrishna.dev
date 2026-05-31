@@ -62,6 +62,13 @@
     });
   });
 
+  /* ---------- Alt+T easter egg — open tweaks panel ---------- */
+  document.addEventListener("keydown", function (e) {
+    if (e.altKey && !e.shiftKey && !e.ctrlKey && !e.metaKey && e.code === "KeyT") {
+      window.postMessage({ type: "__activate_edit_mode" }, "*");
+    }
+  });
+
   /* row + feature click → navigate */
   function wire(el) {
     if (!el) return;

@@ -189,6 +189,13 @@
     document.body.removeChild(ta);
   }
 
+  /* ---------- Alt+T easter egg — open tweaks panel ---------- */
+  document.addEventListener("keydown", function (e) {
+    if (e.altKey && !e.shiftKey && !e.ctrlKey && !e.metaKey && e.code === "KeyT") {
+      window.postMessage({ type: "__activate_edit_mode" }, "*");
+    }
+  });
+
   document.querySelectorAll("[data-share]").forEach(function (btn) {
     btn.addEventListener("click", function () {
       var kind = btn.getAttribute("data-share");
