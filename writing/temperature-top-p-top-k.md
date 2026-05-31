@@ -1,10 +1,10 @@
 ---
-layout: post
 title: "What Are Temperature, Top-p, and Top-k in AI?"
 description: "A clear breakdown of the three key sampling parameters in AI language models — what they control, how they interact, and when to reach for each."
 date: 2024-11-12
 category: "AI Engineering"
 readTime: "7 min"
+topics: ["llm", "sampling", "inference"]
 ---LLMs work their wonders by crafting text that feels just like human writing, predicting what word comes next in a perfect flow. The real charm happens behind the curtain, where it\'s all about the game of probabilities and tokens!
 
 Let's control this magic by fine-tuning specific parameters: **temperature**, **top_p (nucleus sampling)**, and **top_k sampling,** making us the magicians of this magic. It\'s going to be an exciting exploration!

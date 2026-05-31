@@ -1,10 +1,10 @@
 ---
-layout: post
 title: "A Practical Guide to Quantization"
 description: "How quantization lets you run large language models on consumer hardware — the math behind it, and working code using BitsAndBytes 4-bit and 8-bit configs."
 date: 2024-09-03
 category: "Infrastructure"
 readTime: "3 min"
+topics: ["quantization", "llm", "inference", "bitsandbytes"]
 ---
 
 # **What Is Quantization and Its Practical Guide**

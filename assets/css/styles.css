@@ -922,3 +922,56 @@ html.reveal-ready .r:not(.in) {
   .figure-img { height: clamp(360px, 78vw, 460px); }
   .figure-cap { left: auto; right: -2px; }
 }
+
+/* ============================================================
+   LIGHT MODE — warm paper theme
+   ============================================================ */
+html[data-theme="light"] {
+  --bg:        oklch(0.975 0.006 85);
+  --bg-2:      oklch(0.952 0.008 82);
+  --surface:   oklch(0.928 0.010 80);
+  --surface-2: oklch(0.905 0.010 78);
+
+  --text:  oklch(0.195 0.010 60);
+  --muted: oklch(0.42 0.010 65);
+  --faint: oklch(0.60 0.008 70);
+
+  --line:        oklch(0 0 0 / 0.09);
+  --line-strong: oklch(0 0 0 / 0.16);
+
+  --accent:      oklch(0.60 0.115 68);
+  --accent-2:    oklch(0.54 0.10 65);
+  --accent-ink:  oklch(0.985 0.003 80);
+  --accent-soft: oklch(0.60 0.115 68 / 0.12);
+
+  color-scheme: light;
+}
+
+html[data-theme="light"] body::after { opacity: 0.022; }
+
+html[data-theme="light"] ::selection { background: var(--accent); color: var(--accent-ink); }
+
+/* smooth transitions on theme swap for key surfaces */
+body, .site-header, .site-footer, .section { transition: background-color .35s cubic-bezier(0.22, 1, 0.36, 1), color .35s cubic-bezier(0.22, 1, 0.36, 1); }
+
+/* ============================================================
+   THEME TOGGLE BUTTON
+   ============================================================ */
+.theme-toggle {
+  width: 36px; height: 36px;
+  display: grid; place-items: center;
+  background: transparent;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  color: var(--muted);
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: border-color .25s var(--ease), color .25s var(--ease), background .25s var(--ease);
+}
+.theme-toggle:hover { border-color: var(--accent); color: var(--accent); }
+.theme-toggle svg { width: 16px; height: 16px; }
+
+/* show moon in dark mode, sun in light mode */
+.theme-toggle .ic-sun { display: none; }
+html[data-theme="light"] .theme-toggle .ic-moon { display: none; }
+html[data-theme="light"] .theme-toggle .ic-sun { display: block; }

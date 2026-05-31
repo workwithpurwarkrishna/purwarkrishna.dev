@@ -1,10 +1,10 @@
 ---
-layout: post
 title: "Instructor vs. OpenAI Structured JSON in Production"
 description: "A hands-on comparison of Instructor and OpenAI's native structured output for production AI systems — where each shines and where each breaks."
 date: 2024-10-08
 category: "Systems"
 readTime: "12 min"
+topics: ["structured-output", "openai", "pydantic", "llm"]
 ---
 
 Meta Description- Discover how Instructor's Pydantic-based structured output beats OpenAI's JSON for complex schemas, ensuring validation and deep nesting support.

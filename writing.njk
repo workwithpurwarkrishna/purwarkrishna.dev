@@ -1,0 +1,71 @@
+---
+layout: base.njk
+permalink: /writing/
+metaTitle: "Writing — Krishna Purwar"
+description: "An engineering journal on production AI systems, retrieval, inference, and the tools in between."
+pageStyles:
+  - /assets/css/index.css
+pageScripts:
+  - /assets/js/index.js
+---
+{% set posts = collections.posts | reverse %}
+{% set featured = posts[0] %}
+
+<main class="index-main">
+
+  <div class="index-head">
+    <p class="kicker"><span class="idx">→</span> Engineering journal</p>
+    <h1 class="index-title">Writing on <em>production AI,</em> retrieval, and the systems around it.</h1>
+    <p class="index-intro">Field notes from building automation-heavy tools and AI products — what actually holds up in production, the trade-offs nobody mentions, and working code you can lift.</p>
+  </div>
+
+  <div class="index-bar">
+    <div class="filters" id="filters">
+      <button class="filter active" data-cat="all">All</button>
+      {% for c in collections.categories %}<button class="filter" data-cat="{{ c }}">{{ c }}</button>{% endfor %}
+    </div>
+    <span class="index-count"><b id="countN">{{ posts.length }}</b> articles</span>
+  </div>
+
+  {% if featured %}
+  <div class="feature-wrap">
+    <article class="feature-post" data-cat="{{ featured.data.category }}" data-href="{{ featured.url }}">
+      <div class="feature-text">
+        <span class="feature-flag">✦ Latest</span>
+        <h2 class="feature-title">{{ featured.data.title }}</h2>
+        <p class="feature-ex">{{ featured.data.description }}</p>
+        <div class="feature-meta">
+          <span>{{ featured.data.date | dateDisplay }}</span>
+          <span class="dot">·</span>
+          <span>{{ featured.data.readTime }} read</span>
+          <span class="dot">·</span>
+          <span class="read-link">Read <span aria-hidden="true">→</span></span>
+        </div>
+      </div>
+      <div class="feature-visual">
+        {% if featured.data.cover %}<img src="{{ featured.data.cover }}" alt="{{ featured.data.title }}" />{% endif %}
+        <span class="fv-cat">{{ featured.data.category }}</span>
+      </div>
+    </article>
+  </div>
+  {% endif %}
+
+  <div class="post-rows" id="postRows">
+    {% for p in posts %}{% if not loop.first %}
+      <article class="post-row" data-cat="{{ p.data.category }}" data-href="{{ p.url }}">
+        <div class="pr-side">
+          <span class="pr-cat">{{ p.data.category }}</span>
+          <span class="pr-date">{{ p.data.date | dateShort }}</span>
+        </div>
+        <div class="pr-main">
+          <h3 class="pr-title">{{ p.data.title }}</h3>
+          <p class="pr-ex">{{ p.data.description }}</p>
+        </div>
+        <div class="pr-meta"><span>{{ p.data.readTime }}</span><span class="pr-arrow" aria-hidden="true">→</span></div>
+      </article>
+    {% endif %}{% endfor %}
+  </div>
+
+  <div class="index-empty" id="indexEmpty">No articles in this category yet.</div>
+
+</main>

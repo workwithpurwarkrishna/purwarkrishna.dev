@@ -1,0 +1,123 @@
+---
+layout: base.njk
+pageStyles:
+  - /assets/css/post.css
+pageScripts:
+  - /assets/js/article.js
+---
+{% set hdr = "cover" if cover else "editorial" %}
+
+<!-- reading progress -->
+<div class="progress-track" aria-hidden="true"><div class="progress-bar" id="progressBar"></div></div>
+
+<!-- share rail -->
+<div class="share-rail" aria-label="Share">
+  <span class="share-cap">Share</span>
+  <button class="share-btn" data-share="x" title="Share on X" aria-label="Share on X">
+    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24h-6.66l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+  </button>
+  <button class="share-btn" data-share="linkedin" title="Share on LinkedIn" aria-label="Share on LinkedIn">
+    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.45 20.45h-3.56v-5.57c0-1.33-.02-3.04-1.85-3.04-1.85 0-2.13 1.45-2.13 2.94v5.67H9.35V9h3.42v1.56h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28zM5.34 7.43a2.06 2.06 0 1 1 0-4.13 2.06 2.06 0 0 1 0 4.13zM7.12 20.45H3.55V9h3.57v11.45zM22.22 0H1.77C.79 0 0 .77 0 1.73v20.54C0 23.22.79 24 1.77 24h20.45c.98 0 1.78-.78 1.78-1.73V1.73C24 .77 23.2 0 22.22 0z"/></svg>
+  </button>
+  <button class="share-btn" data-share="copy" title="Copy link" aria-label="Copy link">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+  </button>
+</div>
+
+<main class="post-main" id="postMain" data-layout="toc" data-header="{{ hdr }}" data-end="related">
+  <div class="post-shell">
+
+    <aside class="post-toc" aria-label="Table of contents">
+      <div class="toc-label">On this page</div>
+      <ul id="tocList"></ul>
+    </aside>
+
+    <article class="post-wrap">
+
+      <header class="post-header">
+        <div class="post-head-text">
+          <div class="post-meta">
+            <a href="/writing/" class="post-back">← Writing</a>
+            <span class="post-cat">{{ category }}</span>
+          </div>
+          <h1 class="post-title">{{ title }}</h1>
+          {% if description %}<p class="post-lede">{{ description }}</p>{% endif %}
+          <div class="post-byline">
+            <span class="who">Krishna Purwar</span>
+            <span class="post-sep">·</span>
+            <span>{{ date | dateDisplay }}</span>
+            <span class="post-sep">·</span>
+            <span>{{ readTime }} read</span>
+          </div>
+          {% if topics %}
+          <div class="post-tags">
+            {% for t in topics %}<a class="tag">{{ t }}</a>{% endfor %}
+          </div>
+          {% endif %}
+        </div>
+        {% if cover %}
+        <div class="post-cover"><img src="{{ cover }}" alt="{{ title }}" /></div>
+        {% endif %}
+      </header>
+
+      <div class="post-body" id="postBody">
+        {{ content | safe }}
+      </div>
+
+      <footer class="post-foot">
+        <div class="foot-share">
+          <span class="lbl">Share this</span>
+          <div class="row">
+            <button class="fbtn" data-share="x">
+              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24h-6.66l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+              X / Twitter
+            </button>
+            <button class="fbtn" data-share="linkedin">
+              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.45 20.45h-3.56v-5.57c0-1.33-.02-3.04-1.85-3.04-1.85 0-2.13 1.45-2.13 2.94v5.67H9.35V9h3.42v1.56h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28zM5.34 7.43a2.06 2.06 0 1 1 0-4.13 2.06 2.06 0 0 1 0 4.13zM7.12 20.45H3.55V9h3.57v11.45zM22.22 0H1.77C.79 0 0 .77 0 1.73v20.54C0 23.22.79 24 1.77 24h20.45c.98 0 1.78-.78 1.78-1.73V1.73C24 .77 23.2 0 22.22 0z"/></svg>
+              LinkedIn
+            </button>
+            <button class="fbtn" data-share="copy">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+              <span class="copy-label">Copy link</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="author-card">
+          <div class="avatar"><img src="/assets/images/krishna-cut.png" alt="Krishna Purwar" /></div>
+          <div>
+            <div class="a-name">Krishna Purwar</div>
+            <p class="a-bio">Product-minded AI engineer building automation-heavy tools and production AI systems. I write an engineering journal about the things I ship.</p>
+            <div class="a-links">
+              <a href="/writing/">More writing →</a>
+            </div>
+          </div>
+        </div>
+      </footer>
+
+    </article>
+  </div>
+</main>
+
+<!-- Keep reading: up to 3 other posts, newest first -->
+{% set related = collections.posts | relatedPosts(page.url, 3) %}
+<section class="post-end" data-end="related">
+  <div class="keep-reading">
+    <div class="wrap">
+      <div class="kr-head">
+        <p class="kicker"><span class="idx">→</span> Keep reading</p>
+        <a href="/writing/" class="kr-all">All writing →</a>
+      </div>
+      <div class="kr-grid">
+        {% for p in related %}
+          <a class="kr-card" href="{{ p.url }}">
+            <span class="kr-cat">{{ p.data.category }}</span>
+            <h3 class="kr-title">{{ p.data.title }}</h3>
+            <p class="kr-ex">{{ p.data.description }}</p>
+            <span class="kr-meta">{{ p.data.readTime }} read</span>
+          </a>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</section>

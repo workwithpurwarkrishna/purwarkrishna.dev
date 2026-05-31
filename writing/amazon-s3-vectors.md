@@ -1,10 +1,10 @@
 ---
-layout: post
 title: "Amazon S3 Vectors for Retrieval at Scale"
 description: "What Amazon S3 Vectors actually is, how it compares to dedicated vector databases, and a practical walkthrough of using it for retrieval pipelines."
 date: 2025-04-21
 category: "Infrastructure"
 readTime: "7 min"
+topics: ["retrieval", "vector-db", "aws", "rag"]
 ---What are Amazon S3 Vectors and How To use it?
 
 Imagine you\'re running a company with millions of documents, images, or videos. Your customers want to find similar content instantly, like Netflix recommending movies you\'ll love, or a medical team searching through thousands of X-rays to find similar cases. Traditional search only works with exact matches, but what if you could search by meaning instead?

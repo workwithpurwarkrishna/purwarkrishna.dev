@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -9,7 +9,16 @@
 <link rel="icon" href="icons/png/favicon-16.png" sizes="16x16" type="image/png" />
 <link rel="apple-touch-icon" href="icons/app/apple-touch-icon.png" />
 <link rel="manifest" href="site.webmanifest" />
-<meta name="theme-color" content="#16130f" />
+<meta name="theme-color" content="#16130f" id="themeColorMeta" />
+<!-- Set theme before paint — no flash -->
+<script>
+  (function () {
+    try {
+      var saved = localStorage.getItem("pk-theme");
+      document.documentElement.setAttribute("data-theme", saved || "dark");
+    } catch (e) {}
+  })();
+</script>
 <!-- Google Analytics -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-9HR20ZXFH2"></script>
 <script>
@@ -49,6 +58,10 @@
         <li><a href="#about">About</a></li>
         <li><a href="#contact">Contact</a></li>
       </ul>
+      <button class="theme-toggle" id="themeToggle" type="button" aria-label="Toggle light or dark mode" title="Toggle theme">
+        <svg class="ic-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        <svg class="ic-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4.2"/><path d="M12 2v2.2M12 19.8V22M4.9 4.9l1.6 1.6M17.5 17.5l1.6 1.6M2 12h2.2M19.8 12H22M4.9 19.1l1.6-1.6M17.5 6.5l1.6-1.6"/></svg>
+      </button>
       <button class="btn btn-primary btn-sm" data-book>Book a call <span class="arrow">→</span></button>
     </nav>
   </div>

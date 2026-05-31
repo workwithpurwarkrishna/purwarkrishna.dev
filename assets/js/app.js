@@ -177,6 +177,26 @@
     a.addEventListener("click", (e) => { e.preventDefault(); });
   });
 
+  /* ---------- theme toggle ---------- */
+  const themeBtn = document.getElementById("themeToggle");
+  const themeMeta = document.getElementById("themeColorMeta");
+  function applyThemeColor() {
+    if (!themeMeta) return;
+    const light = document.documentElement.getAttribute("data-theme") === "light";
+    themeMeta.setAttribute("content", light ? "#f7f3ec" : "#16130f");
+  }
+  applyThemeColor();
+  if (themeBtn) {
+    themeBtn.addEventListener("click", () => {
+      const cur = document.documentElement.getAttribute("data-theme") === "light" ? "light" : "dark";
+      const next = cur === "light" ? "dark" : "light";
+      document.documentElement.setAttribute("data-theme", next);
+      try { localStorage.setItem("pk-theme", next); } catch (e) {}
+      applyThemeColor();
+      window.dispatchEvent(new CustomEvent("pk-theme-change", { detail: next }));
+    });
+  }
+
   /* ---------- Alt+T easter egg — open tweaks panel ---------- */
   document.addEventListener("keydown", (e) => {
     if (e.altKey && !e.shiftKey && !e.ctrlKey && !e.metaKey && e.code === "KeyT") {

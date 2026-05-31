@@ -1,10 +1,10 @@
 ---
-layout: post
 title: "How Call Centres Use Voice AI to Automate Conversations"
 description: "How modern Voice AI systems replace legacy IVR menus — the STT/LLM/TTS stack, real-world deployments, and a practical guide to building a production call centre agent."
 date: 2025-03-14
 category: "AI Engineering"
 readTime: "11 min"
+topics: ["voice-ai", "stt", "tts", "llm"]
 ---
 
 How Call Centres Use Voice AI to Automate Conversations
