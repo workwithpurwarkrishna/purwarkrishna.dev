@@ -2,3 +2,6 @@
 .image-slots.state.json
 *.log
 ClaudeDesign/
+BlogDump/
+node_modules/
+_site/
